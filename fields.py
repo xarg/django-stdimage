@@ -30,10 +30,20 @@ class StdImageField(ImageField):
 		return ''.join(splitted_filename)
 
 	def _resize_image(self, filename, size):
+		WIDTH, HEIGHT = 0, 1
 		from PIL import Image
 		img = Image.open(filename)
 		if size['force']:
-			pass # not yet implemented
+			ratio = lambda t: float(t[1]) / float(t[0])
+			if ratio((size['width'], size['height'])) > ratio(img.size):
+				x, y = float(img.size[WIDTH]) / img.size[HEIGHT] * size['height'], size['height']
+				pos_x, pos_y = float(x - size['width']) / 2, 0
+			else:
+				x, y = size['width'], float(img.size[HEIGHT]) / img.size[WIDTH] * size['width']
+				pos_x, pos_y = 0, float(y - size['height']) / 2
+			# don't do anything if image already has desired size
+			img = img.resize((int(x), int(y)), Image.ANTIALIAS)
+			img = img.crop((int(pos_x), int(pos_y), int(pos_x + size['width']), int(pos_y + size['height'])))
 		else:
 			img.thumbnail((size['width'], size['height']), Image.ANTIALIAS)
 		img.save(filename)
