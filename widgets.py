@@ -11,19 +11,18 @@ class DelAdminFileWidget(AdminFileWidget):
     input_type = 'file'
 
     def render(self, name, value, attrs=None):
-        valuetype = type(value)
-        error = not isinstance(value, unicode)
-        output = []
-        if not error and value:
-            output.append('%s <a target="_blank" href="%s%s">%s</a> <br />%s ' % \
-                (_('Currently:'), settings.MEDIA_URL, value, value, _('Change:')))
-
-        output.append(super(forms.widgets.FileInput, self).render(name, value, attrs))
-
-        #output = [super(DelAdminFileWidget, self).render(name, value, attrs)]
-        if not error and value: # TODO condition should include if field is required
-            output.append('<br/>%s: <input type="checkbox" name="%s_delete"/>' % (_('Delete'), name))
-        return mark_safe(u''.join(output))
+        input = super(forms.widgets.FileInput, self).render(name, value, attrs)
+        if value and isinstance(value, unicode):
+            item = '<tr><td style="vertical-align: middle;">%s</td><td>%s</td>'
+            output = []
+            output.append('<table style="border-style: none;">')
+            output.append(item % (_('Currently:'), '<a target="_blank" href="%s%s">%s</a>' % (settings.MEDIA_URL, value, value)))
+            output.append(item % (_('Change:'), input))
+            output.append(item % (_('Delete') + ':', '<input type="checkbox" name="%s_delete"/>' % name)) # split colon to force "Delete" that is already translated
+            output.append('</table>')
+            return mark_safe(u''.join(output))
+        else:
+            return mark_safe(input)
 
     def value_from_datadict(self, data, files, name):
         if not data.get('%s_delete' % name):
