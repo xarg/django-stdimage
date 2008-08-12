@@ -1,5 +1,4 @@
-from django.db.models.fields import ImageField
-from django.dispatch import dispatcher
+from django.db.models.fields.files import ImageField
 from django.db.models import signals
 from django.conf import settings
 from widgets import DelAdminFileWidget
@@ -33,8 +32,7 @@ class StdImageField(ImageField):
         WIDTH, HEIGHT = 0, 1
         from PIL import Image
         img = Image.open(filename)
-        #import pdb; pdb.set_trace()
-        if img.size != (size['width'], size['height']):
+        if img.size[0] > size['width'] or img.size[1] > size['height']:
             if size['force']:
                 target_height = float(size['height'] * img.size[WIDTH]) / size['width']
                 if target_height < img.size[HEIGHT]: # Crop height
@@ -50,9 +48,9 @@ class StdImageField(ImageField):
             except IOError:
                 img.save(filename)
 
-    def _rename_resize_image(self, instance=None):
-        filename = getattr(instance, 'get_%s_filename' % self.name)()
-        if filename:
+    def _rename_resize_image(self, instance=None, **kwargs):
+        if getattr(instance, self.name):
+            filename = getattr(instance, self.name).path
             ext = os.path.splitext(filename)[1].lower().replace('jpg', 'jpeg')
             dst = '%s/%s_%s%s' % (self.upload_to, self.name, instance._get_pk_val(), ext)
             dst_fullpath = os.path.join(settings.MEDIA_ROOT, dst)
@@ -67,10 +65,11 @@ class StdImageField(ImageField):
                 setattr(instance, self.attname, dst)
                 instance.save()
 
-    def _set_thumbnail(self, instance=None):
-        filename = getattr(instance, self.name)
-        thumbnail_filename = self._get_thumbnail_filename(filename)
-        setattr(instance, '%s_thumbnail' % self.attname, thumbnail_filename)
+    def _set_thumbnail(self, instance=None, **kwargs):
+        if getattr(instance, self.name):
+            filename = getattr(instance, self.name).path
+            thumbnail_filename = self._get_thumbnail_filename(filename)
+            setattr(instance, '%s_thumbnail' % self.attname, thumbnail_filename)
 
     def formfield(self, **kwargs):
         kwargs['widget'] = DelAdminFileWidget
@@ -79,7 +78,7 @@ class StdImageField(ImageField):
 
     def save_form_data(self, instance, data):
         if data == '__deleted__':
-            filename = getattr(instance, 'get_%s_filename' % self.name)()
+            filename = getattr(instance, self.name).path
             if os.path.exists(filename):
                 os.remove(filename)
             thumbnail_filename = self._get_thumbnail_filename(filename)
@@ -97,6 +96,6 @@ class StdImageField(ImageField):
 
     def contribute_to_class(self, cls, name):
         super(StdImageField, self).contribute_to_class(cls, name)
-        dispatcher.connect(self._rename_resize_image, signals.post_save, sender=cls)
-        dispatcher.connect(self._set_thumbnail, signals.post_init, sender=cls)
+        signals.post_save.connect(self._rename_resize_image, sender=cls)
+        signals.post_init.connect(self._set_thumbnail, sender=cls)
 

@@ -1,5 +1,5 @@
 from django.contrib.admin.widgets import AdminFileWidget
-from django import newforms as forms
+from django import forms
 from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
 from django.conf import settings
@@ -12,7 +12,7 @@ class DelAdminFileWidget(AdminFileWidget):
 
     def render(self, name, value, attrs=None):
         input = super(forms.widgets.FileInput, self).render(name, value, attrs)
-        if value and isinstance(value, unicode):
+        if value:
             item = '<tr><td style="vertical-align: middle;">%s</td><td>%s</td>'
             output = []
             output.append('<table style="border-style: none;">')

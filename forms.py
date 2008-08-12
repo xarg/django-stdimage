@@ -1,4 +1,4 @@
-from django.newforms.fields import ImageField
+from django.forms.fields import ImageField
 
 class StdImageFormField(ImageField):
     def clean(self, data, initial=None):
