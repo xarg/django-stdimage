@@ -72,7 +72,7 @@ class StdImageField(ImageField):
         img = Image.open(filename)
         if img.size[WIDTH] > size['width'] or img.size[HEIGHT] > size['height']:
             if size['force']:
-                img = ImageOps.fit(img, (size['width'], size['height']), Image.BICUBIC)
+                img = ImageOps.fit(img, (size['width'], size['height']), Image.ANTIALIAS)
             else:
                 img.thumbnail((size['width'], size['height']), Image.ANTIALIAS)
             try:
