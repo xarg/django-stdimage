@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.forms.fields import ImageField
 
 class StdImageFormField(ImageField):

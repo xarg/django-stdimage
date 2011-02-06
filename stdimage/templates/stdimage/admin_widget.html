@@ -1,0 +1,23 @@
+{% load i18n %}
+<table style="border-style: none;">
+    <tr>
+        <td style="vertical-align: middle;">{% trans "Current image" %}:</td>
+        <td>
+            <a target="_blank" href="{{MEDIA_URL}}{{value}}">{{value}}</a>
+        </td>
+    </tr>
+    <tr>
+        <td style="vertical-align: middle;">{% trans "Change" %}:</td>
+        <td>
+            {{input}}
+        </td>
+    </tr>
+    {% if show_delete_button %}
+    <tr>
+        <td style="vertical-align: middle;">{% trans "Delete" %}:</td>
+        <td>
+            <input type="checkbox" name="{{name}}_delete"/>
+        </td>
+    </tr>
+    {% endif %}
+</table>
