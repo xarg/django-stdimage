@@ -11,6 +11,8 @@ Django Field that implement those features:
 Installation
 ------------
 
+    Install latest PIL - there is really no reason to use this package without it
+
     easy_install django-stdimage
 
     Put 'stdimage' in the INSTALLED_APPS

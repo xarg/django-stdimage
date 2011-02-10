@@ -10,7 +10,7 @@ from forms import StdImageFormField
 from widgets import DelAdminFileWidget
 
 
-class ThumbnailField:
+class ThumbnailField(object):
     """Instances of this class will be used to access data of the
     generated thumbnails
 
@@ -34,10 +34,9 @@ class StdImageField(ImageField):
         - Auto resizing
         - Automatically generate thumbnails
         - Allow image deletion
-    """
 
-    def __init__(self, verbose_name=None, name=None, width_field=None,
-                 height_field=None, size=None, thumbnail_size=None, **kwargs):
+    """
+    def __init__(self, size=None, thumbnail_size=None, *args, **kwargs):
         """Added fields:
             - size: a tuple containing width and height to resize image, and
             an optional boolean setting if is wanted forcing that size (None for not resizing).
@@ -49,17 +48,25 @@ class StdImageField(ImageField):
 
         """
         params_size = ('width', 'height', 'force')
-        for att_name, att in {'size': size, 'thumbnail_size': thumbnail_size}.items():
-            if att and (isinstance(att, tuple) or isinstance(att, list)):
+        for att_name, att in (('size', size),
+                              ('thumbnail_size', thumbnail_size)):
+            if att and isinstance(att, (tuple, list)):
                 setattr(self, att_name, dict(map(None, params_size, att)))
             else:
                 setattr(self, att_name, None)
-        super(StdImageField, self).__init__(verbose_name, name, width_field, height_field, **kwargs)
+        super(StdImageField, self).__init__(*args, **kwargs)
 
     def _get_thumbnail_filename(self, filename):
         """Returns the thumbnail name associated to the standard image filename
-            * Example: ./myproject/media/img/picture_1.jpeg
-                will return ./myproject/media/img/picture_1.thumbnail.jpeg
+
+        Example::
+
+            ./myproject/media/img/picture_1.jpeg
+
+        returns::
+
+            ./myproject/media/img/picture_1.thumbnail.jpeg
+
         """
         splitted_filename = list(os.path.splitext(filename))
         splitted_filename.insert(1, '.thumbnail')
@@ -67,14 +74,18 @@ class StdImageField(ImageField):
 
     def _resize_image(self, filename, size):
         """Resizes the image to specified width, height and force option
-            - filename: full path of image to resize
-            - size: dictionary containing:
-                - width: new width
-                - height: new height
-                - force: if True, image will be cropped to fit the exact size,
-                    if False, it will have the bigger size that fits the specified
-                    size, but without cropping, so it could be smaller on width
-                    or height
+
+        Arguments::
+
+        filename -- full path of image to resize
+        size -- dictionary with
+            - width: int
+            - height: int
+            - force: bool
+                if True, image will be cropped to fit the exact size,
+                if False, it will have the bigger size that fits the specified
+                size, but without cropping, so it could be smaller on width
+                or height
 
         """
 
@@ -95,7 +106,7 @@ class StdImageField(ImageField):
 
     def _rename_resize_image(self, instance=None, **kwargs):
         """Renames the image, and calls methods to resize and create the
-        thumbnail
+        thumbnail.
 
         """
 
@@ -144,7 +155,6 @@ class StdImageField(ImageField):
         is selected
 
         """
-
         if data == '__deleted__':
             filename = getattr(instance, self.name).path
             if os.path.exists(filename):

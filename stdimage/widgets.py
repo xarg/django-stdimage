@@ -6,9 +6,7 @@ from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 
 class DelAdminFileWidget(AdminFileWidget):
-    '''
-    A AdminFileWidget that shows a delete checkbox
-    '''
+    """An AdminFileWidget that shows a delete checkbox"""
     input_type = 'file'
 
     def render(self, name, value, attrs=None):
