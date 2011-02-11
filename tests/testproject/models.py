@@ -19,7 +19,8 @@ class ResizeCropModel(models.Model):
 
 class ThumbnailModel(models.Model):
     # creates a thumbnail resized to maximum size to fit a 100x75 area
-    image = StdImageField(upload_to='img', thumbnail_size=(100, 75))
+    image = StdImageField(upload_to='img', blank=True,
+                          thumbnail_size=(100, 75))
 
 class ThumbnailCropModel(models.Model):
     # creates a thumbnail resized to 100x100 croping if necessary

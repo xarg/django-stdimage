@@ -4,6 +4,9 @@ from django.contrib.auth.models import User
 
 from testproject import models
 
+def img_dir():
+    return os.path.join(os.path.dirname(__file__), 'media', 'img')
+
 class TestStdImage(TestCase):
     def setUp(self):
         user = User.objects.create_superuser('admin', 'admin@email.com',
@@ -25,8 +28,7 @@ class TestStdImage(TestCase):
         for fixture in self.fixtures.values():
             fixture.close()
 
-        img_dir = os.path.join(os.path.dirname(__file__), 'media', 'img')
-        for root, dirs, files in os.walk(img_dir, topdown=False):
+        for root, dirs, files in os.walk(img_dir(), topdown=False):
             for name in files:
                 os.remove(os.path.join(root, name))
             for name in dirs:
@@ -37,15 +39,14 @@ class TestWidget(TestStdImage):
 
     def test_simple(self):
         """ Upload an image using the admin interface """
-        data = {
+        self.client.post('/admin/testproject/simplemodel/add/', {
             'image': self.fixtures['100.gif']
-        }
-        res = self.client.post('/admin/testproject/simplemodel/add/', data)
+        })
         self.assertEqual(models.SimpleModel.objects.count(), 1)
 
     def test_empty_fail(self):
         """ Will raise an validation error and will not add an intance """
-        res = self.client.post('/admin/testproject/simplemodel/add/', {})
+        self.client.post('/admin/testproject/simplemodel/add/', {})
         self.assertEqual(models.SimpleModel.objects.count(), 0)
 
     def test_empty_success(self):
@@ -53,20 +54,51 @@ class TestWidget(TestStdImage):
         Model
 
         """
-        res = self.client.post('/admin/testproject/admindeletemodel/add/', {})
+        self.client.post('/admin/testproject/admindeletemodel/add/', {})
         self.assertEqual(models.AdminDeleteModel.objects.count(), 1)
 
     def test_uploaded(self):
-        data = {
+        """ Test simple upload """
+        self.client.post('/admin/testproject/simplemodel/add/', {
             'image': self.fixtures['100.gif']
-        }
-        res = self.client.post('/admin/testproject/simplemodel/add/', data)
-        import pdb; pdb.set_trace()
+        })
+        self.assertTrue(os.path.exists(os.path.join(img_dir(), 'image_1.gif')))
 
     def test_delete(self):
-        """ """
-        #data = {
-        #    'image': self.fixtures['100.gif']
-        #}
-        #res = self.client.post('/admin/testproject/simplemodel/add/', data)
-        #res = self.client.post('/admin/testproject/simplemodel/add/', data)
+        """ Test if an image can be deleted """
+
+        self.client.post('/admin/testproject/admindeletemodel/add/', {
+            'image': self.fixtures['100.gif']
+        })
+        #delete
+        res = self.client.post('/admin/testproject/admindeletemodel/1/', {
+            'image_delete': 'checked'
+        })
+        self.assertFalse(os.path.exists(os.path.join(img_dir(),
+                                                     'image_1.gif')))
+
+    def test_thumbnail(self):
+        """ Test if the thumbnail is there """
+
+        self.client.post('/admin/testproject/thumbnailmodel/add/', {
+            'image': self.fixtures['100.gif']
+        })
+        self.assertTrue(os.path.exists(os.path.join(img_dir(), 'image_1.gif')))
+        self.assertTrue(os.path.exists(os.path.join(img_dir(),
+                                                    'image_1.thumbnail.gif')))
+
+    def test_delete_thumbnail(self):
+        """ Delete an image with thumbnail """
+
+        self.client.post('/admin/testproject/thumbnailmodel/add/', {
+            'image': self.fixtures['100.gif']
+        })
+
+        #delete
+        self.client.post('/admin/testproject/thumbnailmodel/1/', {
+            'image_delete': 'checked'
+        })
+        self.assertFalse(os.path.exists(os.path.join(img_dir(),
+                                                     'image_1.gif')))
+        self.assertFalse(os.path.exists(os.path.join(img_dir(),
+                                                    'image_1.thumbnail.gif')))
