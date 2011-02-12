@@ -4,7 +4,7 @@ import os, shutil
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.db.models import signals
-from django.db.models.fields.files import ImageField
+from django.db.models.fields.files import ImageField, ImageFileDescriptor
 
 from forms import StdImageFormField
 from widgets import DelAdminFileWidget
@@ -29,6 +29,15 @@ class ThumbnailField(object):
     def size(self):
         return self.storage.size(self.name)
 
+class StdImageFileDescriptor(ImageFileDescriptor):
+    """ The thumbnail property of the field should be accessible in instance
+    cases
+
+    """
+    def __set__(self, instance, value):
+        super(StdImageFileDescriptor, self).__set__(instance, value)
+        self.field._set_thumbnail(instance)
+
 class StdImageField(ImageField):
     """Django field that behaves as ImageField, with some extra features like:
         - Auto resizing
@@ -36,7 +45,11 @@ class StdImageField(ImageField):
         - Allow image deletion
 
     """
+
+    descriptor_class = StdImageFileDescriptor
+
     def __init__(self, *args, **kwargs):
+
         """Added fields:
             - size: a tuple containing width and height to resize image, and
             an optional boolean setting if is wanted forcing that size (None for not resizing).
