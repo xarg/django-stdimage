@@ -36,7 +36,7 @@ class StdImageField(ImageField):
         - Allow image deletion
 
     """
-    def __init__(self, size=None, thumbnail_size=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         """Added fields:
             - size: a tuple containing width and height to resize image, and
             an optional boolean setting if is wanted forcing that size (None for not resizing).
@@ -47,6 +47,9 @@ class StdImageField(ImageField):
             (None for not creating a thumbnail
 
         """
+        size = kwargs.pop('size', None)
+        thumbnail_size = kwargs.pop('thumbnail_size', None)
+
         params_size = ('width', 'height', 'force')
         for att_name, att in (('size', size),
                               ('thumbnail_size', thumbnail_size)):
