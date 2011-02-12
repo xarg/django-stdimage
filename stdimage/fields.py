@@ -29,6 +29,11 @@ class ThumbnailField(object):
     def size(self):
         return self.storage.size(self.name)
 
+class StdImageFileDescriptor( ImageFileDescriptor ):
+    def __set__( self, instance, value ):
+        super( StdImageFileDescriptor, self ).__set__( instance, value )
+        self.field._set_thumbnail( instance )
+
 class StdImageField(ImageField):
     """Django field that behaves as ImageField, with some extra features like:
         - Auto resizing
@@ -36,6 +41,7 @@ class StdImageField(ImageField):
         - Allow image deletion
 
     """
+    descriptor_class = StdImageFileDescriptor
     def __init__(self, size=None, thumbnail_size=None, *args, **kwargs):
         """Added fields:
             - size: a tuple containing width and height to resize image, and
