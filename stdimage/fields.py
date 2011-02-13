@@ -110,6 +110,16 @@ class StdImageField(ImageField):
         img = Image.open(filename)
         if (img.size[WIDTH] > size['width'] or
             img.size[HEIGHT] > size['height']):
+
+            #If the image is big resize it with the cheapest resize algorithm
+            factor = 1
+            while (img.size[0]/factor > 2*size['width'] and
+                   img.size[1]*2/factor > 2*size['height']):
+                factor *=2
+            if factor > 1:
+                img.thumbnail((int(img.size[0]/factor),
+                               int(img.size[1]/factor)), Image.NEAREST)
+
             if size['force']:
                 img = ImageOps.fit(img, (size['width'], size['height']),
                                    Image.ANTIALIAS)
