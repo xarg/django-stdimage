@@ -11,9 +11,11 @@ class DelAdminFileWidget(AdminFileWidget):
 
     def render(self, name, value, attrs=None):
         input = super(forms.widgets.FileInput, self).render(name, value, attrs)
-        if value:
+        if value and hasattr(value, 'field'):
             return mark_safe(render_to_string('stdimage/admin_widget.html', {
-                'name': name, 'value': value, 'input': input,
+                'name': name,
+                'value': value,
+                'input': input,
                 'show_delete_button': value.field.blank,
                 'MEDIA_URL': settings.MEDIA_URL,
             }))
