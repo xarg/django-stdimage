@@ -199,7 +199,7 @@ class StdImageField(ImageField):
         """
 
         if value:
-            return super(StdImageField, self).get_db_prep_save(value, connection=None)
+            return super(StdImageField, self).get_db_prep_save(value, connection=connection)
         else:
             return u''
 
