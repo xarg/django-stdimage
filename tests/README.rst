@@ -5,4 +5,4 @@ Just run::
 
     python bootstrap.py
     bin/buildout
-    bin/tests
+    bin/test

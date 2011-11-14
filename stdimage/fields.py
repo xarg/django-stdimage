@@ -106,7 +106,10 @@ class StdImageField(ImageField):
         """
 
         WIDTH, HEIGHT = 0, 1
-        from PIL import Image, ImageOps
+        try:
+            import Image, ImageOps
+        except ImportError:
+            from PIL import Image, ImageOps
         img = Image.open(filename)
         if (img.size[WIDTH] > size['width'] or
             img.size[HEIGHT] > size['height']):
