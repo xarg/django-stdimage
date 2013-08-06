@@ -1,4 +1,6 @@
-from fields import StdImageField
+from __future__ import absolute_import
+
+from .fields import StdImageField
 
 try:
     from south.modelsinspector import add_introspection_rules
