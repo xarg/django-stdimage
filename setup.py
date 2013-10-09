@@ -20,10 +20,5 @@ setup(
         'Topic :: Software Development',
     ],
     packages=['stdimage'],
-    package_data={
-        'stdimage': [
-            'templates/stdimage/*.html',
-        ]
-    },
     requires=['django (>=1.0)',],
 )
