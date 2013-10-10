@@ -6,8 +6,8 @@ setup(
     version='0.2.2',
     description='Django Standarized Image Field',
     author='garcia.marc',
-    author_email='garcia.marc@gmail.com',
     url='https://github.com/humanfromearth/django-stdimage',
+    author_email='garcia.marc@gmail.com',
     license='lgpl',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
@@ -20,10 +20,6 @@ setup(
         'Topic :: Software Development',
     ],
     packages=['stdimage'],
-    package_data={
-        'stdimage': [
-            'templates/stdimage/*.html',
-        ]
-    },
+    include_package_data=True,
     requires=['django (>=1.0)',],
 )
