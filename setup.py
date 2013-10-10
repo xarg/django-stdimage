@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='django-stdimage',
-    version='0.2.2',
+    version='0.2.3',
     description='Django Standarized Image Field',
     author='garcia.marc',
     url='https://github.com/humanfromearth/django-stdimage',
