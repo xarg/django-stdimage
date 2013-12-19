@@ -96,8 +96,10 @@ class StdImageField(ImageField):
         param_size = ('width', 'height', 'force')
 
         variations = kwargs.pop('variations', {})
-        variations['size'] = size
-        variations['thumbnail'] = thumbnail_size
+        if not variations.has_key('size'):
+            variations['size'] = size
+        if not variations.has_key('thumbnail'):
+            variations['thumbnail'] = thumbnail_size
 
         var = []
 
@@ -215,7 +217,7 @@ class StdImageField(ImageField):
         if getattr(instance, self.name):
             filename = self.generate_filename(instance,
                                               os.path.basename(getattr(instance, self.name).path))
-            variation = getattr(self, 'thumbnail_size')
+            variation = getattr(self, 'thumbnail')
             thumbnail_filename = self._get_variation_filename(variation, filename)
             thumbnail_field = VariationField(thumbnail_filename)
             setattr(getattr(instance, self.name), 'thumbnail', thumbnail_field)
@@ -229,9 +231,10 @@ class StdImageField(ImageField):
             filename = self.generate_filename(instance,
                                               os.path.basename(getattr(instance, self.name).path))
             for variation in self.variations:
-                variation_filename = self._get_variation_filename(variation, filename)
-                variation_field = VariationField(variation_filename)
-                setattr(getattr(instance, self.name), variation['name'], variation_field)
+                if variation['name'] != 'size':
+                    variation_filename = self._get_variation_filename(variation, filename)
+                    variation_field = VariationField(variation_filename)
+                    setattr(getattr(instance, self.name), variation['name'], variation_field)
 
     def formfield(self, **kwargs):
         """Specify form field and widget to be used on the forms"""
