@@ -225,13 +225,13 @@ class StdImageField(ImageField):
         Variation attribute will be of the same class as the original image, so
         "path", "url"... properties can be used
         """
-        if getattr(instance, self.name) and isinstance(instance, VariationField):
+        if getattr(instance, self.name):
             filename = self.generate_filename(instance,
                                               os.path.basename(getattr(instance, self.name).path))
-            for variation in instance.variations:
+            for variation in self.variations:
                 variation_filename = self._get_variation_filename(variation, filename)
                 variation_field = VariationField(variation_filename)
-                setattr(getattr(instance, self.name), variation.name, variation_field)
+                setattr(getattr(instance, self.name), variation['name'], variation_field)
 
     def formfield(self, **kwargs):
         """Specify form field and widget to be used on the forms"""
