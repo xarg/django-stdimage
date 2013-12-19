@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-from pprint import pprint
 import shutil
 from warnings import warn
 
@@ -98,16 +97,19 @@ class StdImageField(ImageField):
 
         variations = kwargs.pop('variations', {})
         variations['size'] = size
-        variations['thumbnail_size'] = thumbnail_size
+        variations['thumbnail'] = thumbnail_size
+
+        var = []
 
         for key, attr in variations.iteritems():
             if attr and isinstance(attr, (tuple, list)):
                 variation = dict(map(None, param_size, attr))
                 variation['name'] = key
                 setattr(self, key, variation)
+                var.append(variation)
             else:
                 setattr(self, key, None)
-        self.variations = variations
+        self.variations = var
         super(StdImageField, self).__init__(*args, **kwargs)
 
     @staticmethod
@@ -131,8 +133,6 @@ class StdImageField(ImageField):
     def _get_variation_filename(self, variation, filename):
         """Returns the filename of the picture's right size asscociated to sthe standart image filename
         """
-        if not variation:
-            return
         splitted_filename = list(os.path.splitext(filename))
         splitted_filename.insert(1, '.%s' % variation['name'])
         return ''.join(splitted_filename)
@@ -198,11 +198,10 @@ class StdImageField(ImageField):
                 os.rename(filename, dst_fullpath)
                 if self.size:
                     self._resize_image(dst_fullpath, self.size)
-                if self.thumbnail_size:
-                    thumbnail_filename = self._get_thumbnail_filename(
-                        dst_fullpath)
-                    shutil.copyfile(dst_fullpath, thumbnail_filename)
-                    self._resize_image(thumbnail_filename, self.thumbnail_size)
+                for variation in self.variations:
+                    variation_filename = self._get_variation_filename(variation, dst_fullpath)
+                    shutil.copyfile(dst_fullpath, variation_filename)
+                    self._resize_image(variation_filename, variation)
                 setattr(instance, self.attname, dst)
                 instance.save()
 
@@ -228,7 +227,7 @@ class StdImageField(ImageField):
         """
         if getattr(instance, self.name) and isinstance(instance, VariationField):
             filename = self.generate_filename(instance,
-                                                  os.path.basename(getattr(instance, self.name).path))
+                                              os.path.basename(getattr(instance, self.name).path))
             for variation in instance.variations:
                 variation_filename = self._get_variation_filename(variation, filename)
                 variation_field = VariationField(variation_filename)
@@ -250,10 +249,11 @@ class StdImageField(ImageField):
             filename = getattr(instance, self.name).path
             if os.path.exists(filename):
                 os.remove(filename)
-            thumbnail_filename = self._get_thumbnail_filename(filename)
-            if os.path.exists(thumbnail_filename):
-                os.remove(thumbnail_filename)
-            setattr(instance, self.name, None)
+            for variation in self.variations:
+                variation_filename = self._get_variation_filename(variation, filename)
+                if os.path.exists(variation_filename):
+                    os.remove(variation_filename)
+                    setattr(instance, self.name, None)
         else:
             super(StdImageField, self).save_form_data(instance, data)
 
