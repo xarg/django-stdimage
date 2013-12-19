@@ -1,2 +1,4 @@
 *.pyc
 django_stdimage.egg-info
+
+.idea/
