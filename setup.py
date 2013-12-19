@@ -5,8 +5,8 @@ setup(
     name='django-stdimage',
     version='0.4.0',
     description='Django Standarized Image Field',
-    author='Johannes Hoppe',
-    url='https://github.com/codingjoe/django-stdimage',
+    author='garcia.marc',
+    url='https://github.com/humanfromearth/django-stdimage',
     author_email='garcia.marc@gmail.com',
     license='lgpl',
     classifiers=[
