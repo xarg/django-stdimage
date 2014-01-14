@@ -1,3 +1,8 @@
+I no longer maintain this repo! 
+
+Johannes Hoppe is taking care of the project now:
+https://github.com/codingjoe/django-stdimage
+
 Django Standarized Image Field
 ==============================
 
