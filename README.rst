@@ -1,3 +1,6 @@
+**Note:** This repo si no longer maintained. Please use this one: https://github.com/codingjoe/django-stdimage
+
+
 Django Standarized Image Field
 ==============================
 
